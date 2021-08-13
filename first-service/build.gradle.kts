@@ -2,16 +2,9 @@ plugins {
     kotlin("jvm") version "1.5.10"
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
 val exposedVersion: String by project
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    implementation(kotlin("stdlib"))
     implementation("io.javalin:javalin:3.13.10")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
