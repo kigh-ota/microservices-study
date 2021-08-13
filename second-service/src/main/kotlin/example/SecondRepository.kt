@@ -8,6 +8,7 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.DataType
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.CrudRepository
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -19,4 +20,5 @@ interface SecondRepository : CrudRepository<Second, Long> {
 data class Second(@field:Id @field:GeneratedValue val id: Long,
                   val uuid: UUID,
                   val firstUuid: UUID,
-                  val ctime: LocalDateTime)
+                  val ctime: Instant
+)

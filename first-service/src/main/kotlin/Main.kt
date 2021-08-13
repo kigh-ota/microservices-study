@@ -4,17 +4,27 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.`java-time`.datetime
+import org.jetbrains.exposed.sql.`java-time`.timestamp
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 fun main() {
+    val logger = LoggerFactory.getLogger("first-service")
+
     Database.connect(
         "jdbc:mysql://user:password@localhost/microservices-study",
         driver = "com.mysql.cj.jdbc.Driver"
     )
     transaction {
+        SchemaUtils.drop(First)
         SchemaUtils.create(First)
     }
 
@@ -22,10 +32,18 @@ fun main() {
     app.get("/") {ctx ->
         ctx.result("Hello World")
         transaction {
+            val uuidString = UUID.randomUUID().toString()
             First.insert {
-                it[uuid] = UUID.randomUUID()
-                it[ctime] = LocalDateTime.now()
+                it[uuid] = uuidString
+                it[ctime] = Instant.now()
             }
+
+            val client = HttpClient.newBuilder().build();
+            val request =
+                HttpRequest.newBuilder(URI("http://localhost:7002/?first=${uuidString}")).build()
+            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+            logger.info("{}, {}", response.statusCode(), response.body())
+
             withProbability(0.1) { throw RuntimeException() }
         }
     }
@@ -38,6 +56,6 @@ private fun withProbability(prob: Double, callback: () -> Unit) {
 }
 
 object First: IntIdTable() {
-    val uuid = uuid("uuid")
-    val ctime = datetime("ctime")
+    val uuid = varchar("uuid", 36)
+    val ctime = timestamp("ctime")
 }
