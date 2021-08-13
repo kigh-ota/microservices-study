@@ -18,7 +18,6 @@ interface SecondRepository : CrudRepository<Second, Long> {
 
 @MappedEntity(value = "Second")
 data class Second(@field:Id @field:GeneratedValue val id: Long,
-                  val uuid: UUID,
-                  val firstUuid: UUID,
+                  val correlationId: UUID,
                   val ctime: Instant
 )

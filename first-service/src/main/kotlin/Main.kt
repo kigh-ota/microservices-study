@@ -1,4 +1,5 @@
 import io.javalin.Javalin
+import io.javalin.core.util.Header
 import io.javalin.http.Context
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
@@ -32,15 +33,17 @@ fun main() {
     app.get("/") {ctx ->
         ctx.result("Hello World")
         transaction {
-            val uuidString = UUID.randomUUID().toString()
+            val correlationIdString = UUID.randomUUID().toString()
             First.insert {
-                it[uuid] = uuidString
+                it[correlationId] = correlationIdString
                 it[ctime] = Instant.now()
             }
 
             val client = HttpClient.newBuilder().build();
             val request =
-                HttpRequest.newBuilder(URI("http://localhost:7002/?first=${uuidString}")).build()
+                HttpRequest.newBuilder(URI("http://localhost:7002/"))
+                    .header("x-correlation-id", correlationIdString)
+                    .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
             logger.info("{}, {}", response.statusCode(), response.body())
 
@@ -56,6 +59,6 @@ private fun withProbability(prob: Double, callback: () -> Unit) {
 }
 
 object First: IntIdTable() {
-    val uuid = varchar("uuid", 36)
+    val correlationId = varchar("correlation_id", 36)
     val ctime = timestamp("ctime")
 }
