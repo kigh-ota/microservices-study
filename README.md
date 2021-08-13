@@ -1,4 +1,14 @@
-- Run MySQL
+1. first-service
+   - inserts a row to `First` table
+   - calls second-service
+   - fails and rollbacks with low probability
+2. second-service
+   - inserts a row to `Second` table
+   - fails and rollbacks with low probability
+
+Invariant condition: `First` and `Second` tables have the same number of correspondong rows.
+
+# Run MySQL
 
 ```console
 docker run \
