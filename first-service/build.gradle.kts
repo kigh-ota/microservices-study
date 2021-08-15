@@ -11,5 +11,5 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
     implementation("mysql:mysql-connector-java:8.0.26")
-    implementation("org.slf4j:slf4j-simple:1.7.32")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 }

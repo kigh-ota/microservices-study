@@ -19,8 +19,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
+val logger: Logger = LoggerFactory.getLogger("first-service")
+
 fun main() {
-    val logger = LoggerFactory.getLogger("first-service")
 
     Database.connect(
         "jdbc:mysql://user:password@localhost/microservices-study",
@@ -37,7 +38,7 @@ fun main() {
         transaction {
             doSomeLogic()
             val correlationIdString = saveData()
-            callNextService(correlationIdString, logger)
+            callNextService(correlationIdString)
             withProbability(0.1) { throw RuntimeException() }
         }
     }
@@ -53,17 +54,18 @@ private fun saveData(): String {
         it[correlationId] = correlationIdString
         it[ctime] = Instant.now()
     }
+    logger.info("Saved data, correlation id={}",correlationIdString)
     return correlationIdString
 }
 
-private fun callNextService(correlationIdString: String, logger: Logger) {
+private fun callNextService(correlationIdString: String) {
     val client = HttpClient.newBuilder().build();
     val request =
         HttpRequest.newBuilder(URI("http://localhost:7002/"))
             .header("x-correlation-id", correlationIdString)
             .build()
     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-    logger.info("{}, {}", response.statusCode(), response.body())
+    logger.info("Called second-service, status code={}, correlation id={}", response.statusCode(), correlationIdString)
 }
 
 private fun withProbability(prob: Double, callback: () -> Unit) {

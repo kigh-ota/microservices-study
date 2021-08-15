@@ -5,12 +5,16 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Header
 import io.micronaut.http.annotation.QueryValue
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
 @Controller("/")
 class DefaultController(private val secondRepository: SecondRepository) {
+    private val logger = LoggerFactory.getLogger("second-service")
+
     @Get(produces = [MediaType.TEXT_PLAIN])
     fun index(@Header("x-correlation-id") correlationIdString: String): String {
         doSomeLogic()
@@ -26,5 +30,6 @@ class DefaultController(private val secondRepository: SecondRepository) {
     private fun saveData(correlationIdString: String) {
         val second = Second(0, UUID.fromString(correlationIdString), Instant.now())
         secondRepository.save(second)
+        logger.info("Saved data, correlation id={}",correlationIdString)
     }
 }
