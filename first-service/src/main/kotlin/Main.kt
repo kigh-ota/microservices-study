@@ -4,10 +4,12 @@ import io.javalin.http.Context
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import org.jetbrains.exposed.sql.`java-time`.timestamp
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.http.HttpClient
@@ -33,23 +35,35 @@ fun main() {
     app.get("/") {ctx ->
         ctx.result("Hello World")
         transaction {
-            val correlationIdString = UUID.randomUUID().toString()
-            First.insert {
-                it[correlationId] = correlationIdString
-                it[ctime] = Instant.now()
-            }
-
-            val client = HttpClient.newBuilder().build();
-            val request =
-                HttpRequest.newBuilder(URI("http://localhost:7002/"))
-                    .header("x-correlation-id", correlationIdString)
-                    .build()
-            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-            logger.info("{}, {}", response.statusCode(), response.body())
-
+            doSomeLogic()
+            val correlationIdString = saveData()
+            callNextService(correlationIdString, logger)
             withProbability(0.1) { throw RuntimeException() }
         }
     }
+}
+
+private fun doSomeLogic() {
+    Thread.sleep(1000)
+}
+
+private fun saveData(): String {
+    val correlationIdString = UUID.randomUUID().toString()
+    First.insert {
+        it[correlationId] = correlationIdString
+        it[ctime] = Instant.now()
+    }
+    return correlationIdString
+}
+
+private fun callNextService(correlationIdString: String, logger: Logger) {
+    val client = HttpClient.newBuilder().build();
+    val request =
+        HttpRequest.newBuilder(URI("http://localhost:7002/"))
+            .header("x-correlation-id", correlationIdString)
+            .build()
+    val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+    logger.info("{}, {}", response.statusCode(), response.body())
 }
 
 private fun withProbability(prob: Double, callback: () -> Unit) {

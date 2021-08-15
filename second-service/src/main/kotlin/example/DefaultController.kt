@@ -13,8 +13,18 @@ import java.util.*
 class DefaultController(private val secondRepository: SecondRepository) {
     @Get(produces = [MediaType.TEXT_PLAIN])
     fun index(@Header("x-correlation-id") correlationIdString: String): String {
+        doSomeLogic()
+        saveData(correlationIdString)
+        // callNextService()
+        return "Hello World"
+    }
+
+    private fun doSomeLogic() {
+        Thread.sleep(1000)
+    }
+
+    private fun saveData(correlationIdString: String) {
         val second = Second(0, UUID.fromString(correlationIdString), Instant.now())
         secondRepository.save(second)
-        return "Hello World"
     }
 }
