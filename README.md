@@ -3,8 +3,9 @@
    - inserts a row to `First` table
    - calls second-service
    - fails and rollbacks with low probability
-3. second-service ([Micronaut](https://micronaut.io/))
+2. second-service ([Micronaut](https://micronaut.io/))
    - inserts a row to `Second` table
    - fails and rollbacks with low probability
+3. third-service ([Quarkus](https://quarkus.io/))
 
-Invariant condition: `First` and `Second` tables have the same number of correspondong rows.
+Invariant condition: Tables `First`, `Second` and `Third` have the same number of corresponding rows.

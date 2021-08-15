@@ -1,1 +1,1 @@
-include("first-service", "second-service")
+include("first-service", "second-service", "third-service")
