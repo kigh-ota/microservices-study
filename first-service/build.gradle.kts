@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.5.10"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.5.10"
 }
 
 val exposedVersion: String by project
@@ -13,4 +14,8 @@ dependencies {
     implementation("org.apache.kafka:kafka-clients:2.8.0")
     implementation("mysql:mysql-connector-java:8.0.26")
     implementation("ch.qos.logback:logback-classic:1.2.3")
+}
+
+allOpen {
+    annotation("io.micronaut.aop.Around")
 }
