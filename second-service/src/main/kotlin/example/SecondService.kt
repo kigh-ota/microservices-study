@@ -8,14 +8,16 @@ import javax.transaction.Transactional
 
 @Singleton
 open class SecondService(private val secondRepository: SecondRepository,
-                    private val thirdServiceClient: ThirdServiceClient) {
+                    private val thirdServiceClient: ThirdServiceClient,
+private val jobClient: JobClient) {
     private val log = LoggerFactory.getLogger("SecondService")
 
     @Transactional
     open fun execute(correlationIdString: String) {
         doSomeLogic()
         saveData(correlationIdString)
-        callNextService(correlationIdString)
+//        callNextServiceSync(correlationIdString)
+        callNextServiceAsync(correlationIdString)
         withProbability(0.1) { throw RuntimeException() }
     }
 
@@ -29,9 +31,14 @@ open class SecondService(private val secondRepository: SecondRepository,
         log.info("Saved data, correlation id={}",correlationIdString)
     }
 
-    private fun callNextService(correlationIdString: String) {
+    private fun callNextServiceSync(correlationIdString: String) {
         val statusCode = thirdServiceClient.default(correlationIdString)
         log.info("Called third-service, status code={}, correlation id={}", statusCode, correlationIdString)
+    }
+
+    private fun callNextServiceAsync(correlationIdString: String) {
+        jobClient.sendJob(UUID.fromString(correlationIdString))
+        log.info("Message sent to third-service, correlation id={}", correlationIdString)
     }
 }
 
