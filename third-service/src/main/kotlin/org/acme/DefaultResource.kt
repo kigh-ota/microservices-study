@@ -27,7 +27,7 @@ class DefaultResource(private val log: Logger) {
 
     private fun saveData(correlationIdString: String) {
         val third = Third()
-        third.correlationId = UUID.fromString(correlationIdString)
+        third.correlationId = correlationIdString
         third.ctime = Instant.now()
         third.persist()
         log.infov("Saved data, correlation id={0}", correlationIdString)

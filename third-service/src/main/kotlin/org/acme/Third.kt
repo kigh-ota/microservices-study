@@ -7,6 +7,6 @@ import javax.persistence.Entity
 
 @Entity
 class Third: PanacheEntity() {
-    lateinit var correlationId: UUID
+    lateinit var correlationId: String
     lateinit var ctime: Instant
 }
