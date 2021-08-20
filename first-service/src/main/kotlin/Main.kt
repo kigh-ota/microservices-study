@@ -2,7 +2,6 @@ import io.javalin.Javalin
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.kafka.common.serialization.UUIDSerializer
 import org.apache.kafka.common.serialization.VoidSerializer
 import org.jetbrains.exposed.dao.id.IntIdTable
@@ -36,7 +35,7 @@ fun main() {
     val kafkaProducer = createKafkaProducer()
 
     val app = Javalin.create().start(7001)
-    app.get("/") {ctx ->
+    app.get("/") { ctx ->
         ctx.result("Hello World")
         transaction {
             doSomeLogic()
@@ -64,7 +63,7 @@ private fun saveData(): String {
         it[correlationId] = correlationIdString
         it[ctime] = Instant.now()
     }
-    logger.info("Saved data, correlation id={}",correlationIdString)
+    logger.info("Saved data, correlation id={}", correlationIdString)
     return correlationIdString
 }
 
@@ -75,11 +74,22 @@ private fun callNextServiceSync(correlationIdString: String) {
             .header("x-correlation-id", correlationIdString)
             .build()
     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-    logger.info("Called second-service, status code={}, correlation id={}", response.statusCode(), correlationIdString)
+    logger.info(
+        "Called second-service, status code={}, correlation id={}",
+        response.statusCode(),
+        correlationIdString
+    )
 }
 
-private fun callNextServiceAsync(correlationIdString: String, kafkaProducer: KafkaProducer<Void, UUID>) {
-    val record = ProducerRecord<Void, UUID>("second-service-jobs", null, UUID.fromString(correlationIdString))
+private fun callNextServiceAsync(
+    correlationIdString: String,
+    kafkaProducer: KafkaProducer<Void, UUID>
+) {
+    val record = ProducerRecord<Void, UUID>(
+        "second-service-jobs",
+        null,
+        UUID.fromString(correlationIdString)
+    )
     kafkaProducer.send(record)
     kafkaProducer.flush()
     logger.info("Message sent to second-service, correlation id={}", correlationIdString)
@@ -91,7 +101,7 @@ private fun withProbability(prob: Double, callback: () -> Unit) {
     }
 }
 
-object First: IntIdTable() {
+object First : IntIdTable() {
     val correlationId = varchar("correlation_id", 36)
     val ctime = timestamp("ctime")
 }

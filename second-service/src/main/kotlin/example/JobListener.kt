@@ -1,6 +1,5 @@
 package example
 
-import io.micronaut.configuration.kafka.annotation.KafkaClient
 import io.micronaut.configuration.kafka.annotation.KafkaListener
 import io.micronaut.configuration.kafka.annotation.OffsetReset
 import io.micronaut.configuration.kafka.annotation.Topic

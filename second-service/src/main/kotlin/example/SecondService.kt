@@ -7,9 +7,11 @@ import javax.inject.Singleton
 import javax.transaction.Transactional
 
 @Singleton
-open class SecondService(private val secondRepository: SecondRepository,
-                    private val thirdServiceClient: ThirdServiceClient,
-private val jobClient: JobClient) {
+open class SecondService(
+    private val secondRepository: SecondRepository,
+    private val thirdServiceClient: ThirdServiceClient,
+    private val jobClient: JobClient
+) {
     private val log = LoggerFactory.getLogger("SecondService")
 
     @Transactional
@@ -28,12 +30,16 @@ private val jobClient: JobClient) {
     private fun saveData(correlationIdString: String) {
         val second = Second(0, UUID.fromString(correlationIdString), Instant.now())
         secondRepository.save(second)
-        log.info("Saved data, correlation id={}",correlationIdString)
+        log.info("Saved data, correlation id={}", correlationIdString)
     }
 
     private fun callNextServiceSync(correlationIdString: String) {
         val statusCode = thirdServiceClient.default(correlationIdString)
-        log.info("Called third-service, status code={}, correlation id={}", statusCode, correlationIdString)
+        log.info(
+            "Called third-service, status code={}, correlation id={}",
+            statusCode,
+            correlationIdString
+        )
     }
 
     private fun callNextServiceAsync(correlationIdString: String) {

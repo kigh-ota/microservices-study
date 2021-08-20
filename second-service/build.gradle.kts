@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.5.10"
-    kotlin("kapt")  version "1.5.10"
+    kotlin("kapt") version "1.5.10"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("io.micronaut.application") version "1.5.4"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.5.10"

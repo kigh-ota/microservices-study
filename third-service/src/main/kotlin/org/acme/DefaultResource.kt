@@ -2,9 +2,11 @@ package org.acme
 
 import org.jboss.logging.Logger
 import java.time.Instant
-import java.util.*
 import javax.transaction.Transactional
-import javax.ws.rs.*
+import javax.ws.rs.GET
+import javax.ws.rs.HeaderParam
+import javax.ws.rs.Path
+import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 
 @Path("/default")

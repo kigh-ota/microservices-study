@@ -5,8 +5,6 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Header
 import org.slf4j.LoggerFactory
-import java.time.Instant
-import java.util.*
 
 @Controller("/")
 class DefaultController(private val secondService: SecondService) {
